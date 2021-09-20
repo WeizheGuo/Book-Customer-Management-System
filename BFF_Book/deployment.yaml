@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookbff
+  labels:
+    app: bookbff
+spec:
+  selector:
+    matchLabels:
+      app: bookbff
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: bookbff
+    spec:
+      containers:
+      - name: bookbff
+        image: karlguo/book_bff_image
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 82
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 82
+          initialDelaySeconds: 5
+          periodSeconds: 5

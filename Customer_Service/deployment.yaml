@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customerservice
+  labels:
+    app: customerservice
+spec:
+  selector:
+    matchLabels:
+      app: customerservice
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: customerservice
+    spec:
+      containers:
+      - name: customerservice
+        image: karlguo/customer_service_image
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3001
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 5

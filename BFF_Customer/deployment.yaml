@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customerbff
+  labels:
+    app: customerbff
+spec:
+  selector:
+    matchLabels:
+      app: customerbff
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: customerbff
+    spec:
+      containers:
+      - name: customerbff
+        image: karlguo/customer_bff_image
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 81
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 81
+          initialDelaySeconds: 5
+          periodSeconds: 5

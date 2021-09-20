@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: k8s-helper
+  labels:
+    app: k8s-helper
+spec:
+  containers:
+  - image: docker.io/huangjiahua/k8s-helper
+    command:
+      - "sleep"
+      - "604800"
+    imagePullPolicy: Always
+    name: ubuntu
+  restartPolicy: Always

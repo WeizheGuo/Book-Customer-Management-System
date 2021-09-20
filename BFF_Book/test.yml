@@ -1,0 +1,359 @@
+config:
+  target: "http://a8a1ab57c5f5848bebb732cf92566099-496544188.us-east-2.elb.amazonaws.com:82"
+  http:
+    timeout: 20
+  phases:
+    # Create virtual users every second
+    - duration: 1
+      arrivalRate: 1
+      name: "Load Test"
+  variables:
+    book1_isbn: "978-1234567181"
+    book2_isbn: "978-1234567282"
+    user_agent_mobile: Mozilla/5.0 (Linux; Android 7.0; SM-G930VC Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.83 Mobile Safari/537.36
+  defaults:
+    headers:
+      user-agent: "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36"
+      Authorization: "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJLUkFNRVJTIiwibHVscyI6IktSQU1FUlMiLCJjcmVhdGVkIjoxNjE3MjMwNzUxMzIwLCJyb2xlcyI6W10sImlzcyI6InRjdS5nb3YuYnIiLCJlaW8iOiIxMC4xMDAuMTkyLjUxIiwibnVzIjoiSk9BTyBBTkRPTklPUyBTUFlSSURBS0lTIiwibG90IjoiU2VnZWMiLCJhdWQiOiJPUklHRU1fUkVRVUVTVF9CUk9XU0VSIiwidHVzIjoiVENVIiwiY3VscyI6MjI1LCJjb2QiOjIyNSwiZXhwIjoxNjE3MjczOTUxMzIwLCJudWxzIjoiSk9BTyBBTkRPTklPUyBTUFlSSURBS0lTIn0.qtJ0Sf2Agqd_JmxGKfqiLw8SldOiP9e21OT4pKC8BqdXrJ0plqOWHf0hHbwQWp-foEBZzAUWX0J-QHtLyQ7SRw"
+  plugins:
+    expect: {}
+
+scenarios:
+  - name: "Create books"
+    flow:
+      - post:
+          url: "/books/"
+          json:
+            ISBN: "{{ book1_isbn }}"
+            title: "Software Architecture in Practice"
+            Author: "Bass, L."
+            description: "seminal book on software architecture"
+            genre: "non-fiction"
+            price: 59.95
+            quantity: 106
+          capture:
+            - json: "$.ISBN"
+              as: "ISBN"
+              strict: false
+            - json: "$.title"
+              as: "title"
+              strict: false
+            - json: "$.Author"
+              as: "Author"
+              strict: false
+            - json: "$.description"
+              as: "description"
+              strict: false
+            - json: "$.genre"
+              as: "genre"
+              strict: false
+            - json: "$.price"
+              as: "price"
+              strict: false
+            - json: "$.quantity"
+              as: "quantity"
+              strict: false
+          expect:
+            - statusCode: 201
+            - equals:
+              - "{{ ISBN }}"
+              - "{{ book1_isbn }}"
+            - equals:
+              - "{{ title }}"
+              - "Software Architecture in Practice"
+            - equals:
+              - "{{ Author }}"
+              - "Bass, L."
+            - equals:
+              - "{{ description }}"
+              - "seminal book on software architecture"
+            - equals:
+              - "{{ genre }}"
+              - "non-fiction"
+            - equals:
+              - "{{ price }}"
+              - "59.95"
+            - equals:
+              - "{{ quantity }}"
+              - "106"
+
+      - post:
+          url: "/books/"
+          json:
+            ISBN: "wrong-book"
+            title: "Software Architecture in Practice"
+            Author: "Bass, L."
+            description: "seminal book on software architecture"
+            genre: "non-fiction"
+            price: -2
+          expect:
+            - statusCode: 400
+
+      - post:
+          url: "/books/"
+          json:
+            ISBN: "{{ book2_isbn }}"
+            title: "C Programming Language"
+            Author: "Brian W Kernighan"
+            description: "C Programming Language 4th edition"
+            genre: "non-fiction"
+            price: 58.62
+            quantity: 110
+          capture:
+            - json: "$.ISBN"
+              as: "ISBN"
+              strict: false
+            - json: "$.title"
+              as: "title"
+              strict: false
+            - json: "$.Author"
+              as: "Author"
+              strict: false
+            - json: "$.description"
+              as: "description"
+              strict: false
+            - json: "$.genre"
+              as: "genre"
+              strict: false
+            - json: "$.price"
+              as: "price"
+              strict: false
+            - json: "$.quantity"
+              as: "quantity"
+              strict: false
+          expect:
+            - statusCode: 201
+            - equals:
+              - "{{ ISBN }}"
+              - "{{ book2_isbn }}"
+            - equals:
+              - "{{ title }}"
+              - "C Programming Language"
+            - equals:
+              - "{{ Author }}"
+              - "Brian W Kernighan"
+            - equals:
+              - "{{ description }}"
+              - "C Programming Language 4th edition"
+            - equals:
+              - "{{ genre }}"
+              - "non-fiction"
+            - equals:
+              - "{{ price }}"
+              - "58.62"
+            - equals:
+              - "{{ quantity }}"
+              - "110"
+
+
+      - get:
+          url: "/books/isbn/{{ book1_isbn }}"
+          capture:
+            - json: "$.ISBN"
+              as: "ISBN"
+              strict: false
+            - json: "$.title"
+              as: "title"
+              strict: false
+            - json: "$.Author"
+              as: "Author"
+              strict: false
+            - json: "$.description"
+              as: "description"
+              strict: false
+            - json: "$.genre"
+              as: "genre"
+              strict: false
+            - json: "$.price"
+              as: "price"
+              strict: false
+            - json: "$.quantity"
+              as: "quantity"
+              strict: false
+          expect:
+            - statusCode: 200
+            - equals:
+              - "{{ ISBN }}"
+              - "{{ book1_isbn }}"
+            - equals:
+              - "{{ title }}"
+              - "Software Architecture in Practice"
+            - equals:
+              - "{{ Author }}"
+              - "Bass, L."
+            - equals:
+              - "{{ description }}"
+              - "seminal book on software architecture"
+            - equals:
+              - "{{ genre }}"
+              - "non-fiction"
+            - equals:
+              - "{{ price }}"
+              - "59.95"
+            - equals:
+              - "{{ quantity }}"
+              - "106"
+
+      - get:
+          url: "/books/isbn/{{ book1_isbn }}"
+          headers:
+            user-agent: "{{ user_agent_mobile }}"
+          capture:
+            - json: "$.ISBN"
+              as: "ISBN"
+              strict: false
+            - json: "$.title"
+              as: "title"
+              strict: false
+            - json: "$.Author"
+              as: "Author"
+              strict: false
+            - json: "$.description"
+              as: "description"
+              strict: false
+            - json: "$.genre"
+              as: "genre"
+              strict: false
+            - json: "$.price"
+              as: "price"
+              strict: false
+            - json: "$.quantity"
+              as: "quantity"
+              strict: false
+          expect:
+            - statusCode: 200
+            - equals:
+              - "{{ ISBN }}"
+              - "{{ book1_isbn }}"
+            - equals:
+              - "{{ title }}"
+              - "Software Architecture in Practice"
+            - equals:
+              - "{{ Author }}"
+              - "Bass, L."
+            - equals:
+              - "{{ description }}"
+              - "seminal book on software architecture"
+            - equals:
+              - "{{ genre }}"
+              - "3"
+            - equals:
+              - "{{ price }}"
+              - "59.95"
+            - equals:
+              - "{{ quantity }}"
+              - "106"
+
+      - get:
+          url: "/books/isbn/book-not-exist"
+          expect:
+            - statusCode: 404
+
+      - put:
+          url: "/books/{{ book2_isbn }}"
+          json:
+            ISBN: "{{ book2_isbn }}"
+            title: "Software Architecture in Practice"
+            Author: "Bass, L."
+            description: "seminal book on software architecture"
+            genre: "non-fiction"
+            price: 59.95
+            quantity: 100
+          capture:
+            - json: "$.ISBN"
+              as: "ISBN"
+              strict: false
+            - json: "$.title"
+              as: "title"
+              strict: false
+            - json: "$.Author"
+              as: "Author"
+              strict: false
+            - json: "$.description"
+              as: "description"
+              strict: false
+            - json: "$.genre"
+              as: "genre"
+              strict: false
+            - json: "$.price"
+              as: "price"
+              strict: false
+            - json: "$.quantity"
+              as: "quantity"
+              strict: false
+          expect:
+            - statusCode: 200
+            - equals:
+              - "{{ ISBN }}"
+              - "{{ book2_isbn }}"
+            - equals:
+              - "{{ title }}"
+              - "Software Architecture in Practice"
+            - equals:
+              - "{{ Author }}"
+              - "Bass, L."
+            - equals:
+              - "{{ description }}"
+              - "seminal book on software architecture"
+            - equals:
+              - "{{ genre }}"
+              - "non-fiction"
+            - equals:
+              - "{{ price }}"
+              - "59.95"
+            - equals:
+              - "{{ quantity }}"
+              - "100"
+
+      - put:
+          url: "/books/book-not-valid"
+          json:
+            ISBN: "book-not-found"
+            title: "Software Architecture in Practice"
+            Author: "Bass, L."
+            description: "seminal book on software architecture"
+            genre: "non-fiction"
+            price: -100
+            quantity: 100
+          capture:
+            - json: "$.message"
+              as: "message"
+              strict: false
+          expect:
+            - statusCode: 400
+      - put:
+          url: "/books/book-not-found"
+          json:
+            ISBN: "book-not-found"
+            title: "Software Architecture in Practice"
+            Author: "Bass, L."
+            description: "seminal book on software architecture"
+            genre: "non-fiction"
+            price: 59.95
+            quantity: 100
+          capture:
+            - json: "$.message"
+              as: "message"
+              strict: false
+          expect:
+            - statusCode: 404
+      - post:
+          url: "/books/"
+          json:
+            ISBN: "{{ book1_isbn }}"
+            title: "Software Architecture in Practice"
+            Author: "Bass, L."
+            description: "seminal book on software architecture"
+            genre: "non-fiction"
+            price: 59.95
+            quantity: 106
+          capture:
+            - json: "$.message"
+              as: "message"
+              strict: false
+          expect:
+            - statusCode: 422
+      - get:
+          url: "/books/isbn/{{ book1_isbn }}"
+          headers:
+            Authorization: ""
